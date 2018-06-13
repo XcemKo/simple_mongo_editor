@@ -1,4 +1,7 @@
+__author__ = 'vadik'
+
 from PyQt5 import QtWidgets, uic
+import mongo
 
 class Dialog(QtWidgets.QDialog):
     def __init__(self):
@@ -11,9 +14,9 @@ class Dialog(QtWidgets.QDialog):
         uic.loadUi('dialog.ui', self)
 
         self.radioButton.clicked.connect(self.checkRadio)
+        self.Ok_Can.accepted.connect(self.checkUser)
 
     def checkRadio(self):
-        print("ChekcRadio")
         if self.radioButton.isChecked():
             self.Password_edit.setEchoMode(0)
         else:
@@ -21,3 +24,13 @@ class Dialog(QtWidgets.QDialog):
 
     def setMainWindow(self, main):
         self.main = main
+
+    def checkUser(self):
+        user = self.Login_edit.text()
+        password = self.Password_edit.text()
+        ret = mongo.checkUser(user,password)
+        print("{} {} - {}".format(user,password,ret))
+        self.main.show()
+        self.close()
+
+

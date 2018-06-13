@@ -13,12 +13,11 @@ def clearTable(table):
         table.removeRow(0)
 
 class MainWindow(QtWidgets.QMainWindow):
-
     def insertRow(self):
-        self.table.insertRow(self.table.rowCount())
+        self.Table.insertRow(self.Table.rowCount())
 
     def removeRow(self):
-        self.table.removeRow(self.table.rowCount()-1)
+        self.Table.removeRow(self.Table.rowCount()-1)
 
     def fill_row(self):
         documents = mongo.getDocuments(self.currentTable)
@@ -38,15 +37,24 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(0,row):
             str = dict()
             for k in range(0,column):
+                #print("{} {} {}".format(i,k,table.item(i, k)))
                 try:
                     str[table.horizontalHeaderItem(k).text()] = int(table.item(i, k).text())
                 except:
                     str[table.horizontalHeaderItem(k).text()] = table.item(i ,k).text()
             maps.append(str)
         mapsBase = mongo.getDocuments(self.currentTable)
-        for i in range(0,len(maps)):
-            if not(maps[i] == mapsBase[i]):
+
+        #ПЕРЕДЕЛАТЬ!!
+        minLen = min(len(maps),len(mapsBase))
+        for i in range(0, minLen):
+            if (maps[i] != mapsBase[i]):
+                print(maps[i])
+                print(mapsBase[i])
                 mongo.updateDoc(self.currentTable, maps[i]['_id'], maps[i])
+        if(len(maps) > len(mapsBase)):
+            for i in range(len(mapsBase),len(maps)):
+                mongo.insertDoc(self.currentTable,maps[i]['_id'], maps[i])
 
     def __init__(self):
         # Базовый конструктор окна
@@ -68,13 +76,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.Table.clear()
         clearTable(self.Table)
         self.Table.setHorizontalHeaderLabels(tables['Cars'])
-        # self.Table.setItemDelegate(ItemDelegateCombo(self.Table,
-        #                                              self.__weakref__,
-        #                                              self.currentTable)
-        #                            )
+        self.Table.setItemDelegate(ItemDelegateCombo(self.Table,
+                                                     self.__weakref__,
+                                                     self.currentTable)
+                                   )
 
     def checkItemListTable(self, item):
-        if item.text() != self.currentTable:
+        if item.text() == self.currentTable:
             return
         if tables.get(item.text()) is not None:
             self.do_table()
@@ -82,7 +90,9 @@ class MainWindow(QtWidgets.QMainWindow):
             clearTable(self.Table)
 
             self.Table.setColumnCount(len(tables[item.text()]))
-            self.Table.setHorizontalHeaderLabels(tables[item.text()])
+            # headers = tables[item.text()][1:]
+            headers = tables[item.text()]
+            self.Table.setHorizontalHeaderLabels(headers)
             self.currentTable = item.text()
             if tables['ComboBox'].get(item.text()) is not None:
                 self.Table.setItemDelegate(ItemDelegateCombo(self.Table,
@@ -113,7 +123,6 @@ if __name__ == "__main__":
     Создание основного окна программы
     """
     app = QtWidgets.QApplication(sys.argv)
-    print("Hello")
     global main_window
     main_window = MainWindow()
 

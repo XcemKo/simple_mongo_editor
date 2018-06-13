@@ -48,20 +48,23 @@ def updateDoc(name, id, dict):
     db[name].update_many(   {'_id': id},
                             {'$set':dict})
 
+def insertDoc(name, id, dict):
+    db[name].insert(dict)
+
 def getDocuments(name):
     ret = []
     for doc in db[name].find():
         ret.append(doc)
     return ret
 
-def getColumnFromCollection(name_col,column):
+def getColumnFromCollection(name_col, column):
     docs = getDocuments(name_col)
     ret = []
     for doc in docs:
         ret.append(doc[column])
     return ret
 
-
+#print(getCollections())
 
 
 

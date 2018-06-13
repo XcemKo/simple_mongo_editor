@@ -1,6 +1,7 @@
 __author__ = 'vadik'
 
-from PyQt5 import Qt
+from PyQt5 import QtWidgets
+from PyQt5 import QtCore
 import mongo
 
 tables = dict()
@@ -37,42 +38,45 @@ tables['Orders'] = ["_id",
 tables['Cargo'] = ["_id", "Metrics", "Count", "MinPart"]
 
 tables['ComboBox'] = dict()
-tables['ComboBox']['Cars'] = [4,5]
+tables['ComboBox']['Cars']       = [5, 6]
 tables['ComboBox']['Containers'] = [2]
-tables['ComboBox']['Orders'] = [4,5]
+tables['ComboBox']['Orders']     = [5, 6]
 
-class ItemDelegateCombo(Qt.QItemDelegate):
-    def __init(self, table, main_window, tableName):
+class ItemDelegateCombo(QtWidgets.QItemDelegate):
+    def __init__(self, table, main_window, tableName):
         super(ItemDelegateCombo, self).__init__()
-        Qt.QItemDelegate.__init__(self)
+        QtWidgets.QItemDelegate.__init__(self)
         self.table = table
         self.comboBox = tables['ComboBox'][tableName]
+        print("comboBox - ",self.comboBox)
         self.tableName = tableName
+        print("tableName - ", self.tableName)
         self.main_window = main_window
 
     def createEditor(self, editor, QStyleOptionViewItem, index):
+        print(index.column(),)
         if index.column() in self.comboBox and self.comboBox is not None:
-            editor = Qt.QComboBox(editor)
-            name = tables[self.tableName]
+            editor = QtWidgets.QComboBox(editor)
+            name = tables[self.tableName][index.column()]
+            print("name - " + str(name))
             query = mongo.getColumnFromCollection(name, '_id')
-            if len(query) >0:
+            if len(query) > 0:
                 editor.addItems(query)
             else:
                 editor.addItem(str("Нет " + tables[self.tableName][index.column()]),0)
             return editor
-        return Qt.QtItemDelegate.createEditor(self, editor, QStyleOptionViewItem, index)
+        return QtWidgets.QItemDelegate.createEditor(self, editor, QStyleOptionViewItem, index)
 
     def setEditorData(self, editor, index):
         if index.column() not in self.comboBox:
-            value = index.model().data(index, Qt.Qt.EditRole)
+            value = index.model().data(index, QtCore.Qt.EditRole)
             editor.setText(value)
         else:
             item = editor.findData(editor.currentText())
             if item != -1:
                 editor.setCurrentText(editor.ItemData(item))
 
-
-    def setMovelData(self, editor, item_model, index):
+    def setModelData(self, editor, item_model, index):
         if index.column() not in self.comboBox:
             value = editor.text()
             item_model.setData(index, value)
