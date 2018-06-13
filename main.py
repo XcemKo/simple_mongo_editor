@@ -68,14 +68,14 @@ class MainWindow(QtWidgets.QMainWindow):
         toolBar = self.mainToolBar
         toolBar.addAction("Add", self.insertRow)
         toolBar.addAction("Delete", self.removeRow)
-        self.currentTable = 'Cars'
+        self.currentTable = 'Car'
         self.tableList.clear()
         self.tableList.addItems(tables['itemsListTable'])
         self.tableList.itemClicked.connect(self.checkItemListTable)
 
         self.Table.clear()
         clearTable(self.Table)
-        self.Table.setHorizontalHeaderLabels(tables['Cars'])
+        self.Table.setHorizontalHeaderLabels(tables['Car'])
         self.Table.setItemDelegate(ItemDelegateCombo(self.Table,
                                                      self.__weakref__,
                                                      self.currentTable)
@@ -105,7 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.close()
 
     def keyPressEvent(self, e):
-        print (e.key())
+        #print (e.key())
         if e.key() == Qt.Key_Escape:
                 self.closeMainWindow()
 

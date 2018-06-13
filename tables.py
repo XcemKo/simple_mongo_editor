@@ -5,29 +5,29 @@ from PyQt5 import QtCore
 import mongo
 
 tables = dict()
-tables['itemsListTable'] = ["Cars",
-                            "Drivers",
-                            "Containers",
-                            "Orders",
+tables['itemsListTable'] = ["Car",
+                            "Driver",
+                            "Container",
+                            "Order",
                             "Cargo"]
 
-tables['Cars'] = ["_id",
+tables['Car'] = ["_id",
                   "Model",
                   "LicensePlate",
                   "MaxWeight",
                   "MaxDistance",
                   "Driver",
-                  "Containers"]
+                  "Container"]
 
-tables['Drivers'] = ["_id",
+tables['Driver'] = ["_id",
                      "FIO",
                      "CategoryLicense"]
 
-tables['Containers'] = ["_id", #Number
+tables['Container'] = ["_id", #Number
                         "VolumeForCargo",
                         "Cargo"]
 
-tables['Orders'] = ["_id",
+tables['Order'] = ["_id",
                     "PickupCargo",
                     "Destination",
                     "LastDateDelivery",
@@ -38,9 +38,9 @@ tables['Orders'] = ["_id",
 tables['Cargo'] = ["_id", "Metrics", "Count", "MinPart"]
 
 tables['ComboBox'] = dict()
-tables['ComboBox']['Cars']       = [5, 6]
-tables['ComboBox']['Containers'] = [2]
-tables['ComboBox']['Orders']     = [5, 6]
+tables['ComboBox']['Car']       = [5, 6]
+tables['ComboBox']['Container'] = [2]
+tables['ComboBox']['Order']     = [5, 6]
 
 class ItemDelegateCombo(QtWidgets.QItemDelegate):
     def __init__(self, table, main_window, tableName):
@@ -48,18 +48,19 @@ class ItemDelegateCombo(QtWidgets.QItemDelegate):
         QtWidgets.QItemDelegate.__init__(self)
         self.table = table
         self.comboBox = tables['ComboBox'][tableName]
-        print("comboBox - ",self.comboBox)
         self.tableName = tableName
-        print("tableName - ", self.tableName)
         self.main_window = main_window
 
     def createEditor(self, editor, QStyleOptionViewItem, index):
-        print(index.column(),)
         if index.column() in self.comboBox and self.comboBox is not None:
             editor = QtWidgets.QComboBox(editor)
             name = tables[self.tableName][index.column()]
+            #if (name[-1] != 's'):
+            #    name = name + 's'
             print("name - " + str(name))
+
             query = mongo.getColumnFromCollection(name, '_id')
+            print(query)
             if len(query) > 0:
                 editor.addItems(query)
             else:
@@ -70,7 +71,7 @@ class ItemDelegateCombo(QtWidgets.QItemDelegate):
     def setEditorData(self, editor, index):
         if index.column() not in self.comboBox:
             value = index.model().data(index, QtCore.Qt.EditRole)
-            editor.setText(value)
+            editor.setText(str(value))
         else:
             item = editor.findData(editor.currentText())
             if item != -1:
